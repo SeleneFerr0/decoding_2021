@@ -1,0 +1,182 @@
+import os
+import pandas as pd
+import jieba
+import re
+
+import numpy
+from sklearn.preprocessing import StandardScaler
+
+
+import os
+#from pyltp import SentenceSplitter, Segmentor, Postagger, Parser, NamedEntityRecognizer, SementicRoleLabeller
+import csv
+
+import jieba
+import sys
+import os
+#from config_ch import *
+import chardet
+import numpy as np
+import pandas as pd
+import xlrd
+import copy
+import glob
+import jieba.posseg
+import jieba.analyse
+import io
+from sklearn import feature_extraction
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer
+
+os.getcwd()
+## CHANGE
+p = r'C:\Users\base1001\Documents\Python Scripts'
+os.chdir(p)
+
+pd.set_option('display.max_rows', 310)
+pd.set_option('display.max_columns', 310)
+pd.set_option('display.width', 500)
+
+from round1_func import *
+from nlp_func1 import *
+
+
+
+
+
+def cut_word(word):
+    #cw = jieba.cut_for_search(word)
+    cw = jieba.cut(word)
+    return list(cw)
+
+def string_clean(l):
+    l = str(l).replace("[", "")
+    l = l.replace("]", "")
+    l = l.replace("', '", "/")
+    l = l.replace("@", "")
+    l = l.replace("(", "")
+    l = l.replace(")", "")
+    l = l.replace("#", "")
+    l = l.replace('【领券满99减20】', "")
+    l = l.replace('【领券满39减8】', "")
+    l = l.replace('【领券满89减8】', "")
+    l = l.replace('【闪购福利】', "")
+    l = l.replace('【泡面】', "")
+    l = l.replace('【碗】', "")
+    l = l.replace('【整箱】', "")
+    l = l.replace('【整包】', "")
+    l = l.replace('【大包】', "")
+    l = l.replace('【单包】', "")
+    l = l.replace('【五连包】', "")
+    l = l.replace('【网红推荐】', "")
+    l = l.replace('【网红爆款】', "")
+    l = l.replace('【抖音爆款】', "")
+    l = l.replace('【网红】', "")
+    l = l.replace("【", "")
+    l = l.replace("】", "")
+    l = l.replace("亚州", "亚洲")
+    l = l.replace("$",'')
+    l = l.replace("*",'')
+    l = l.replace("/",'')
+    l = l.replace("@@",'')
+    l = l.replace(" ",'')
+    l = l.replace("（",'')
+    l = l.replace("）",'')
+    l = l.replace(".",'')
+    l = l.replace("^",'')
+    l = l.replace("_",'')
+    l = l.replace("?",'')
+    l = l.replace("4合1",'四合一')
+    l = l.replace("3合1",'三合一')
+    l = l.replace("2合1",'二合一')
+    l = l.replace("1+2",'雀巢一加二')
+    l = l.replace("3点1刻",'三点一刻')
+    l = l.replace("3点一刻",'三点一刻')
+    return l
+
+def brand_clean(l):
+    l = l.replace("亚州", "亚洲")
+    l = l.replace("【", "")
+    l = l.replace("】", "")
+    l = l.replace("@@",'')
+    l = l.replace("@", "")
+    l = l.replace("(", "")
+    l = l.replace(")", "")
+    l = l.replace("#", "")
+    l = l.replace("{", "")
+    l = l.replace("}", "")
+    l = l.replace("$",'')
+    l = l.replace("*",'')
+    l = l.replace("/",';')  
+    return(l)
+
+
+def debrand(l):
+    l = str(l[0]).replace(str(l[1]), '')
+    return l
+
+
+import jieba
+import jieba.analyse as analyse
+
+
+import random
+def extract_nr(text):
+    allow_pos = ('nr','nz','nt','ns')
+#allow_pos = ('nr','nz','nt', 'n')
+    tags = analyse.extract_tags(text, topK=10, withWeight=False, allowPOS=allow_pos)
+    return tags
+
+def extract_a(text):
+    allow_pos = ('a','ad','an','d')
+#allow_pos = ('nr','nz','nt', 'n')
+    tags = analyse.extract_tags(text, topK=10, withWeight=False, allowPOS=allow_pos)
+    return tags
+
+
+def extract_n(text):
+    allow_pos = ('n','vn')
+#allow_pos = ('nr','nz','nt', 'n')
+    tags = analyse.extract_tags(text, topK=10, withWeight=False, allowPOS=allow_pos)
+    return tags
+
+import re
+def brand_sp(text):
+    UNESCAPED_SLASH_RE = re.compile(';|/')
+    a = UNESCAPED_SLASH_RE.split(text)
+    return a
+
+def get_TF(words,topk = 5):
+	
+	tf_dic = {}
+	for w in words:
+		tf_dic[w] = tf_dic.get(w,0) + 1
+	return sorted(tf_dic.items(),key = lambda x : x[1],reverse = True)[:topk]  #get top 10
+
+def depart(s):
+    eng = "".join(i for i in s if ord(i) < 256)
+    chn = "".join(i for i in s if ord(i) >= 256)
+    chn = chn.replace('包装','')
+    chn = chn.replace('装','')
+    return chn
+
+def denumeric(s):
+    result = ''.join([i for i in s if not i.isdigit()])
+    return result
+
+
+def text_prep(df, col='DESCRIPTION'):
+    df[col]= df[col].apply(string_clean)
+    df['textual'] = df[col].str.replace('\d+', '')
+    df['textual'] = df['textual'].apply(depart)
+    df['special'] =df['textual'].apply(extract_nr)
+    df['nouns'] =df['textual'].apply(extract_n)
+    df['ads'] =df['textual'].apply(extract_a)
+    df['cut_DESCRIPTION']= eric_cat['textual'].apply(cut_word)
+    
+    return df
+def numsplit(s):
+    head = s.rstrip('0123456789')
+    tail = s[len(head):]
+    return [head, tail]
+
