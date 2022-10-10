@@ -224,18 +224,6 @@ bert = AutoModel.from_pretrained('bert-wwm-chinese')
 
 
 
-tokenizer = AutoTokenizer.from_pretrained('ernie-3.0-medium-zh')
-text = tokenizer('DOCTORLI李士祛痘修护精华液15毫升')
-
-
-
-seg = Taskflow("word_segmentation")
-a = seg('大自然泡椒莲藕^300g')
-
-
-
-
-
 import os
 wdd = r'/Users/seleneferro/Downloads/2022decode/model/o2o/data'
 df = pd.read_csv(os.path.join(wdd,'trainSetFull0824.csv'),encoding='GB18030')
@@ -274,21 +262,6 @@ for file in files:
 
 
 cat_list = list(raw.CATNAME.unique())
-
-
-bl_chk1 = raw.groupby(['CATNAME', 'NANKEY']).size()
-
-'''
-RWC 61505473 872 散装糖果
-RDT 78136304 360
-LPChocolate 62426593 358
-
-
-t = raw[raw.NANKEY == 62426593.0]
-etc...
-'''
-
-
 
 
 
@@ -441,85 +414,3 @@ for i in add_key:
 
 
 
-#%%
-
-
-
-#cnt_per(df, 'cat2_name')
-
-
-df['product_desc'] = df['product_name'].map(string_clean)
-df['product_desc'] = df['product_desc'].map(brand_clean)
-tt = df[0:300]
-
-
-
-cat = pd.DataFrame(cat)
-
-
-train = df[['product_desc','cat1_id']]
-#train[0:120000].to_csv('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/train.txt',index=False)
-
-#with open('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/train.txt', 'w') as f: train[0:120000].to_string(f, col_space=None,header=False, index=False)
-#with open('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/tev.txt', 'w') as f: train.to_string(f, col_space=None,header=False, index=False)
-
-#%%
-train[0:120000].to_csv('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/train.txt',index=False, header=None)
-train[120000:123801].to_csv('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/test.txt',index=False,header=None)
-train.to_csv('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/dev.txt',index=False,header=None)
-#cat.to_csv('/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/class.txt',index=False,header=None)
-
-
-
-
-
-
-
-
-#%%
-path = r'/Users/seleneferro/Downloads/o2o/Torch-base/vegetables/data/train.txt'
-contents = []
-with open(path, 'r', encoding='UTF-8') as f:
-    for line in f:
-        lin = line.strip()
-        print(lin)
-        if not lin:
-            continue
-        content, label = lin.split(',')
-        
-        
-        
-        
-        
-        
-        
-
-#%%
-
-
-def countDigitOne(n): # can not deal with n=-1 case!
-    if n<=0: return 0
-    
-    iCount = 0
-    iFactor = 1
-    iLowerNum, iCurNum, iHigherNum = 0, 0, 0
-    
-    while n // iFactor != 0:
-        iLowerNum = n - (n//iFactor) * iFactor
-        iCurNum = (n//iFactor) % 10
-        iHigherNum = n //(iFactor * 10)
-        
-        if iCurNum == 0:
-            iCount += iHigherNum * iFactor
-        elif iCurNum == 1:
-            iCount += iHigherNum * iFactor + (iLowerNum + 1)
-        else:
-            iCount += (iHigherNum + 1) * iFactor
-        iFactor *= 10
-    return iCount
-
-
-
-a = countDigitOne(n=13)
-
-a
